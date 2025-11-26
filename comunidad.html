@@ -43,6 +43,11 @@
                 <div id="listaRegistros" class="list-group">
                     <p class="text-muted text-center py-5" id="mensajeVacio">Aún no hay registros en este navegador. ¡Sé el primero en calcular tu IMC!</p>
                 </div>
+                
+                <div class="text-center mt-5">
+                    <button id="btnImprimirGeneral" class="btn btn-info d-none">Imprimir Reporte General de Comunidad</button>
+                </div>
+
             </div>
         </section>
 
@@ -55,19 +60,23 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         // Función específica para cargar los registros en esta página
         function cargarRegistros() {
             const lista = document.getElementById('listaRegistros');
-            // Carga los registros desde el localStorage del navegador
+            const btnGeneral = document.getElementById('btnImprimirGeneral');
             const registros = JSON.parse(localStorage.getItem('registrosIMC')) || [];
             
             lista.innerHTML = ''; // Limpia el contenido
 
             if (registros.length === 0) {
                 lista.innerHTML = '<p class="text-muted text-center py-5">Aún no hay registros en este navegador. ¡Sé el primero en calcular tu IMC!</p>';
+                btnGeneral.style.display = 'none';
                 return;
             }
+
+            btnGeneral.style.display = 'block'; // Mostrar el botón si hay datos
 
             registros.reverse().forEach(registro => { // Mostrar los más recientes primero
                 let badgeClass;
@@ -81,7 +90,6 @@
                 } else {
                      badgeClass = 'bg-secondary';
                 }
-
 
                 const listItem = `
                     <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
@@ -100,5 +108,7 @@
         // Llama a la función al cargar la página
         window.onload = cargarRegistros;
     </script>
+    
+    <script src="js/script.js"></script> 
 </body>
 </html>
