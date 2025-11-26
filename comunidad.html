@@ -72,11 +72,11 @@
 
             if (registros.length === 0) {
                 lista.innerHTML = '<p class="text-muted text-center py-5">Aún no hay registros en este navegador. ¡Sé el primero en calcular tu IMC!</p>';
-                btnGeneral.style.display = 'none';
+                btnGeneral.style.display = 'none'; // Ocultar si no hay datos
                 return;
             }
 
-            btnGeneral.style.display = 'block'; // Mostrar el botón si hay datos
+            btnGeneral.style.display = 'block'; // Mostrar si hay datos
 
             registros.reverse().forEach(registro => { // Mostrar los más recientes primero
                 let badgeClass;
@@ -85,7 +85,7 @@
                     badgeClass = 'bg-success';
                 } else if (registro.clasificacion === 'Sobrepeso' || registro.clasificacion === 'Bajo peso') {
                     badgeClass = 'bg-warning text-dark';
-                } else if (registro.clasificacion === 'Obesidad') {
+                } else if (registro.clasificacion.includes('Obesidad')) {
                     badgeClass = 'bg-danger';
                 } else {
                      badgeClass = 'bg-secondary';
