@@ -7,7 +7,7 @@ const btnImprimirIndividual = document.getElementById('btnImprimirIndividual');
 const btnImprimirGeneral = document.getElementById('btnImprimirGeneral');
 const imcForm = document.getElementById('imcForm');
 
-// La tabla de la OMS para el reporte (usando estilos HTML inline)
+// La tabla de la OMS para el reporte (colores sincronizados con la interfaz)
 const tablaOMSHTML = `
     <h4 style="color: #198754;">Tabla de IMC de la OMS</h4>
     <table style="width:100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em;">
@@ -18,10 +18,10 @@ const tablaOMSHTML = `
             </tr>
         </thead>
         <tbody>
-            <tr><td style="border: 1px solid #ddd; padding: 8px;">Menos de 18.5</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #ffe0b2;">Bajo peso</td></tr>
-            <tr><td style="border: 1px solid #ddd; padding: 8px;">18.5 - 24.9</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #c8e6c9;">Peso normal</td></tr>
-            <tr><td style="border: 1px solid #ddd; padding: 8px;">25.0 - 29.9</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #fff9c4;">Sobrepeso</td></tr>
-            <tr><td style="border: 1px solid #ddd; padding: 8px;">30.0 o más</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #ffccbc;">Obesidad</td></tr>
+            <tr><td style="border: 1px solid #ddd; padding: 8px;">Menos de 18.5</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #fce4e4;">Bajo peso</td></tr> 
+            <tr><td style="border: 1px solid #ddd; padding: 8px;">18.5 - 24.9</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #e8f5e9;">Peso normal</td></tr>
+            <tr><td style="border: 1px solid #ddd; padding: 8px;">25.0 - 29.9</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #fffde7;">Sobrepeso</td></tr>
+            <tr><td style="border: 1px solid #ddd; padding: 8px;">30.0 o más</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #ffcdd2;">Obesidad</td></tr>
         </tbody>
     </table>
     <p style="font-size: 0.8em; margin-top: 5px;">Fuente: Organización Mundial de la Salud (OMS)</p>
@@ -79,12 +79,12 @@ function generarRecomendaciones(imc) {
 function generarGraficaEstadistica(counts, total) {
     if (total === 0) return '';
 
-    // Mapeo de colores
+    // Mapeo de colores (USANDO LOS MISMOS COLORES DE FONDO DE LA TABLA)
     const colorMap = {
-        'Bajo peso': '#56b8e8',    // Azul claro
-        'Peso normal': '#198754',  // Verde (Success)
-        'Sobrepeso': '#ff9800',    // Naranja
-        'Obesidad': '#dc3545',     // Rojo (Danger)
+        'Bajo peso': '#fce4e4',    // Color pastel de la tabla (Bajo peso)
+        'Peso normal': '#e8f5e9',  // Color pastel de la tabla (Peso normal)
+        'Sobrepeso': '#fffde7',    // Color pastel de la tabla (Sobrepeso)
+        'Obesidad': '#ffcdd2',     // Color pastel de la tabla (Obesidad)
     };
 
     let gradientStops = '';
