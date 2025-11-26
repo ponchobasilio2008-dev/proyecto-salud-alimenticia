@@ -74,71 +74,58 @@ function generarRecomendaciones(imc) {
 }
 
 /**
- * Genera una gráfica de pastel (anillo) simple usando HTML/CSS puro.
- * @param {object} counts - Objeto con el conteo de cada clasificación.
- * @param {number} total - Número total de registros
- * @returns {string} Código HTML/CSS para la gráfica
+ * Genera una gráfica de pastel (anillo) simple usando HTML/CSS puro (conic-gradient).
  */
 function generarGraficaEstadistica(counts, total) {
     if (total === 0) return '';
 
-    let startAngle = 0;
-    const colors = {
-        'Bajo peso': '#ffbf00', // Amarillo/Naranja
-        'Peso normal': '#198754', // Verde (Success)
-        'Sobrepeso': '#ff9800', // Naranja
-        'Obesidad': '#dc3545', // Rojo (Danger)
+    // Mapeo de colores
+    const colorMap = {
+        'Bajo peso': '#56b8e8',    // Azul claro
+        'Peso normal': '#198754',  // Verde (Success)
+        'Sobrepeso': '#ff9800',    // Naranja
+        'Obesidad': '#dc3545',     // Rojo (Danger)
     };
 
-    let segments = '';
-    
-    // Calcula los porcentajes y genera los segmentos CSS
-    for (const clasif in counts) {
+    let gradientStops = '';
+    let currentStop = 0;
+
+    // Orden de las clasificaciones para la visualización
+    const sortedClasificaciones = ['Bajo peso', 'Peso normal', 'Sobrepeso', 'Obesidad'];
+
+    // Genera la cadena CSS para el conic-gradient
+    sortedClasificaciones.forEach(clasif => {
         const value = counts[clasif];
         if (value > 0) {
+            const color = colorMap[clasif];
             const percentage = (value / total) * 100;
-            const endAngle = startAngle + (percentage * 3.6); // 3.6 grados por porcentaje (360/100)
+            const nextStop = currentStop + percentage;
             
-            // Crea el segmento del cono
-            segments += `<div style="
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                clip: rect(0, 50px, 100px, 0); /* Clip la mitad del círculo */
-                transform: rotate(${startAngle}deg);
-            ">
-                <div style="
-                    position: absolute;
-                    width: 100%;
-                    height: 100%;
-                    clip: rect(0, 100px, 100px, 50px);
-                    background: ${colors[clasif] || '#ccc'};
-                    transform: rotate(${endAngle - startAngle}deg);
-                "></div>
-            </div>`;
-            
-            startAngle = endAngle;
+            // Crea el segmento de color (Color, Inicio%, Fin%)
+            gradientStops += `${color} ${currentStop}% ${nextStop}%, `;
+            currentStop = nextStop;
         }
-    }
+    });
+    // Removemos la coma final
+    gradientStops = gradientStops.slice(0, -2);
 
-    // Estructura de la gráfica
+
     return `
         <div style="display: flex; justify-content: center; margin: 30px 0;">
             <div style="
                 width: 150px;
                 height: 150px;
                 border-radius: 50%;
+                background: conic-gradient(${gradientStops});
                 position: relative;
-                overflow: hidden;
                 box-shadow: 0 0 10px rgba(0,0,0,0.1);
             ">
-                ${segments}
                 <div style="
                     position: absolute;
-                    top: 25px;
-                    left: 25px;
-                    width: 100px;
-                    height: 100px;
+                    top: 30px;
+                    left: 30px;
+                    width: 90px;
+                    height: 90px;
                     background: white;
                     border-radius: 50%;
                 "></div>
@@ -207,7 +194,7 @@ if (imcForm) {
  */
 function imprimirReporte(nombre, valorIMC, clasificacionIMC, recomendacionesHTML, fecha) {
     const contenidoImprimir = `
-        <div style="font-family: Arial, Arial, sans-serif; padding: 20px; color: #333;">
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
             <h1 style="color: #198754; text-align: center;">Reporte Personal de IMC</h1>
             <p style="text-align: right; font-size: 0.9em;">Fecha del Registro: ${fecha}</p>
             <hr style="border: 1px solid #eee; margin: 20px 0;">
