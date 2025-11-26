@@ -7,7 +7,15 @@ const btnImprimirIndividual = document.getElementById('btnImprimirIndividual');
 const btnImprimirGeneral = document.getElementById('btnImprimirGeneral');
 const imcForm = document.getElementById('imcForm');
 
-// La tabla de la OMS para el reporte (colores sincronizados con la interfaz)
+// Mapeo de colores fuerte para la Gráfica y la Simbología
+const COLORES_FUERTES = {
+    'Bajo peso': '#56b8e8',    // Azul fuerte
+    'Peso normal': '#198754',  // Verde fuerte (Success)
+    'Sobrepeso': '#ff9800',    // Naranja fuerte
+    'Obesidad': '#dc3545',     // Rojo fuerte (Danger)
+};
+
+// La tabla de la OMS para el reporte (colores pastel de fondo)
 const tablaOMSHTML = `
     <h4 style="color: #198754;">Tabla de IMC de la OMS</h4>
     <table style="width:100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em;">
@@ -74,42 +82,44 @@ function generarRecomendaciones(imc) {
 }
 
 /**
- * Genera una gráfica de pastel (anillo) simple usando HTML/CSS puro (conic-gradient).
+ * Genera una gráfica de pastel (anillo) y la simbología usando colores FUERTES.
  */
 function generarGraficaEstadistica(counts, total) {
     if (total === 0) return '';
 
-    // Mapeo de colores (SINCRONIZADO CON LA TABLA)
-    const colorMap = {
-        'Bajo peso': '#fce4e4',    
-        'Peso normal': '#e8f5e9',  
-        'Sobrepeso': '#fffde7',    
-        'Obesidad': '#ffcdd2',     
-    };
-
     let gradientStops = '';
     let currentStop = 0;
+    let simbologiaHTML = '';
 
     // Orden de las clasificaciones para la visualización
     const sortedClasificaciones = ['Bajo peso', 'Peso normal', 'Sobrepeso', 'Obesidad'];
 
-    // Genera la cadena CSS para el conic-gradient
+    // 1. Genera la cadena CSS para el conic-gradient y la simbología
     sortedClasificaciones.forEach(clasif => {
         const value = counts[clasif];
         if (value > 0) {
-            const color = colorMap[clasif];
+            const color = COLORES_FUERTES[clasif];
             const percentage = (value / total) * 100;
             const nextStop = currentStop + percentage;
             
+            // Crea el segmento de color
             gradientStops += `${color} ${currentStop}% ${nextStop}%, `;
             currentStop = nextStop;
+
+            // Crea la entrada en la simbología (Leyenda)
+            simbologiaHTML += `
+                <div style="display: flex; align-items: center; margin-right: 15px;">
+                    <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 2px; margin-right: 5px;"></div>
+                    <span style="font-size: 0.8em; color: #555;">${clasif} (${percentage.toFixed(1)}%)</span>
+                </div>
+            `;
         }
     });
     gradientStops = gradientStops.slice(0, -2);
 
 
     return `
-        <div style="display: flex; justify-content: center; margin: 30px 0;">
+        <div style="display: flex; justify-content: center; margin: 20px 0;">
             <div style="
                 width: 150px;
                 height: 150px;
@@ -129,10 +139,15 @@ function generarGraficaEstadistica(counts, total) {
                 "></div>
             </div>
         </div>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
+            ${simbologiaHTML}
+        </div>
     `;
 }
 
-// --- 1. Lógica al calcular IMC (imc.html) ---
+// --- Lógica del formulario (Continúa igual) ---
+
 if (imcForm) {
     imcForm.addEventListener('submit', function(e) {
         e.preventDefault(); 
@@ -183,53 +198,7 @@ if (imcForm) {
 }
 
 
-// -------------------------------------------------------------
-// --- 2. FUNCIONES DE REPORTE Y EVENTOS GLOBALES ---
-// -------------------------------------------------------------
-
-/**
- * Función central para generar y abrir la ventana de impresión del reporte individual.
- */
-function imprimirReporte(nombre, valorIMC, clasificacionIMC, recomendacionesHTML, fecha) {
-    const contenidoImprimir = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h1 style="color: #198754; text-align: center;">Reporte Personal de IMC</h1>
-            <p style="text-align: right; font-size: 0.9em;">Fecha del Registro: ${fecha}</p>
-            <hr style="border: 1px solid #eee; margin: 20px 0;">
-
-            <h3 style="color: #0d6efd;">Datos y Resultados</h3>
-            <p><strong>Nombre:</strong> ${nombre}</p>
-            <p><strong>Valor de IMC:</strong> <span style="font-size: 1.5em; font-weight: bold; color: #dc3545;">${valorIMC}</span></p>
-            <p><strong>Clasificación:</strong> <span style="font-size: 1.2em; font-weight: bold;">${clasificacionIMC}</span></p>
-            
-            <h3 style="color: #0d6efd;">Recomendaciones Personalizadas</h3>
-            ${recomendacionesHTML}
-
-            <hr style="border: 1px solid #eee; margin: 20px 0;">
-            
-            ${tablaOMSHTML}
-
-            <p style="margin-top: 30px; font-size: 0.8em; text-align: center; color: #666;">
-                Este reporte es solo con fines informativos y no reemplaza la consulta profesional. Proyecto Escolar 2025.
-            </p>
-        </div>
-    `;
-
-    // Lógica de impresión en nueva ventana
-    const ventanaImpresion = window.open('', '_blank');
-    ventanaImpresion.document.write('<html><head><title>Reporte IMC Personal</title>');
-    ventanaImpresion.document.write('<style>');
-    ventanaImpresion.document.write('body { margin: 0; padding: 0; }');
-    ventanaImpresion.document.write('@media print { body { -webkit-print-color-adjust: exact; } }');
-    ventanaImpresion.document.write('</style>');
-    ventanaImpresion.document.write('</head><body>');
-    ventanaImpresion.document.write(contenidoImprimir);
-    ventanaImpresion.document.write('</body></html>');
-    ventanaImpresion.document.close();
-    ventanaImpresion.print();
-}
-
-// --- 2. Evento del Botón Imprimir Reporte Personal (imc.html) ---
+// --- 1. Imprimir Reporte Personal (imc.html) ---
 if (btnImprimirIndividual) {
     btnImprimirIndividual.addEventListener('click', () => { 
         const nombre = document.getElementById('nombre').value || 'Anónimo';
@@ -243,7 +212,7 @@ if (btnImprimirIndividual) {
 }
 
 
-// --- 3. Evento del Botón Imprimir Reporte General (comunidad.html) ---
+// --- 2. Imprimir Reporte General (comunidad.html) ---
 if (btnImprimirGeneral) {
     btnImprimirGeneral.addEventListener('click', () => {
         const registros = JSON.parse(localStorage.getItem('registrosIMC')) || [];
@@ -271,17 +240,8 @@ if (btnImprimirGeneral) {
         // Genera la gráfica de pastel
         const graficaHTML = generarGraficaEstadistica(clasificacionesCount, registros.length);
         
-        // 2. Crear lista de distribución de clasificaciones
-        let distribucionClasificacionesHTML = '<ul style="list-style: none; padding: 0;">';
-        for (const clasif in clasificacionesCount) {
-            const count = clasificacionesCount[clasif];
-            if (count > 0) {
-                const porcentaje = ((count / registros.length) * 100).toFixed(1);
-                distribucionClasificacionesHTML += `<li style="margin-bottom: 5px;">— ${clasif}: ${count} personas (${porcentaje}%)</li>`;
-            }
-        }
-        distribucionClasificacionesHTML += '</ul>';
-
+        // 2. Crear lista de distribución de clasificaciones (usada para los cálculos, no para la lista final)
+        
         // 3. Crear tabla de registros individuales
         let tablaRegistrosHTML = `
             <h4 style="color: #198754; margin-top: 30px;">Detalle de Registros Individuales</h4>
@@ -296,7 +256,7 @@ if (btnImprimirGeneral) {
                 </thead>
                 <tbody>
         `;
-        // Mapeo de colores de fondo para la tabla (SINCRONIZADO)
+        // Mapeo de colores de fondo para la tabla (SINCRONIZADO con la tabla OMS)
         const coloresFondoTabla = {
             'Bajo peso': '#fce4e4',
             'Peso normal': '#e8f5e9',
@@ -335,8 +295,6 @@ if (btnImprimirGeneral) {
                 
                 ${graficaHTML}
                 
-                ${distribucionClasificacionesHTML}
-
                 <hr style="border: 1px solid #eee; margin: 20px 0;">
 
                 ${tablaRegistrosHTML}
@@ -362,7 +320,7 @@ if (btnImprimirGeneral) {
     });
 }
 
-// --- 4. Evento Global para Impresión Individual en la Comunidad ---
+// --- 4. Evento Global para Impresión Individual en la Comunidad (Continúa igual) ---
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('btn-reporte-individual')) {
         const btn = e.target;
