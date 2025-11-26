@@ -61,8 +61,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
+    <script src="js/script.js"></script> 
+    
     <script>
-        // Función específica para cargar los registros en esta página
+        // Función para cargar los registros y decidir si mostrar el botón
         function cargarRegistros() {
             const lista = document.getElementById('listaRegistros');
             const btnGeneral = document.getElementById('btnImprimirGeneral');
@@ -71,14 +73,14 @@
             lista.innerHTML = ''; // Limpia el contenido
 
             if (registros.length === 0) {
-                lista.innerHTML = '<p class="text-muted text-center py-5">Aún no hay registros en este navegador. ¡Sé el primero en calcular tu IMC!</p>';
-                btnGeneral.style.display = 'none'; // Ocultar si no hay datos
+                lista.innerHTML = '<p class="text-muted text-center py-5" id="mensajeVacio">Aún no hay registros en este navegador. ¡Sé el primero en calcular tu IMC!</p>';
+                btnGeneral.classList.add('d-none'); // Ocultar si no hay datos
                 return;
             }
 
-            btnGeneral.style.display = 'block'; // Mostrar si hay datos
+            btnGeneral.classList.remove('d-none'); // MOSTRAR si hay datos (quita la clase d-none)
 
-            registros.reverse().forEach(registro => { // Mostrar los más recientes primero
+            registros.reverse().forEach(registro => { 
                 let badgeClass;
                 // Asigna colores a las clasificaciones
                 if (registro.clasificacion === 'Peso normal') {
@@ -108,7 +110,5 @@
         // Llama a la función al cargar la página
         window.onload = cargarRegistros;
     </script>
-    
-    <script src="js/script.js"></script> 
 </body>
 </html>
