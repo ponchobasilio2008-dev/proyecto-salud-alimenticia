@@ -7,12 +7,12 @@ const btnImprimirIndividual = document.getElementById('btnImprimirIndividual');
 const btnImprimirGeneral = document.getElementById('btnImprimirGeneral');
 const imcForm = document.getElementById('imcForm');
 
-// Mapeo de colores fuerte para la Gráfica y la Simbología
+// Mapeo de colores FUERTES para la Gráfica (Máxima Visibilidad)
 const COLORES_FUERTES = {
-    'Bajo peso': '#56b8e8',    // Azul fuerte
-    'Peso normal': '#198754',  // Verde fuerte (Success)
-    'Sobrepeso': '#ff9800',    // Naranja fuerte
-    'Obesidad': '#dc3545',     // Rojo fuerte (Danger)
+    'Bajo peso': '#00A0E3',    // Azul fuerte
+    'Peso normal': '#28A745',  // Verde Bootstrap (Success)
+    'Sobrepeso': '#FFC107',    // Amarillo/Naranja fuerte
+    'Obesidad': '#DC3545',     // Rojo (Danger)
 };
 
 // La tabla de la OMS para el reporte (colores pastel de fondo)
@@ -37,6 +37,7 @@ const tablaOMSHTML = `
 
 /**
  * Función para generar las recomendaciones HTML según el IMC.
+ * (Función no alterada, solo la he incluido para completitud)
  */
 function generarRecomendaciones(imc) {
     let consejosHTML = '';
@@ -82,7 +83,7 @@ function generarRecomendaciones(imc) {
 }
 
 /**
- * Genera una gráfica de pastel (anillo) y la simbología usando colores FUERTES.
+ * Genera una gráfica de pastel (anillo) y la simbología con colores FUERTES.
  */
 function generarGraficaEstadistica(counts, total) {
     if (total === 0) return '';
@@ -106,11 +107,11 @@ function generarGraficaEstadistica(counts, total) {
             gradientStops += `${color} ${currentStop}% ${nextStop}%, `;
             currentStop = nextStop;
 
-            // Crea la entrada en la simbología (Leyenda)
+            // Crea la entrada en la simbología (Leyenda) con el porcentaje
             simbologiaHTML += `
-                <div style="display: flex; align-items: center; margin-right: 15px;">
-                    <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 2px; margin-right: 5px;"></div>
-                    <span style="font-size: 0.8em; color: #555;">${clasif} (${percentage.toFixed(1)}%)</span>
+                <div style="display: flex; align-items: center; margin: 5px 0;">
+                    <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 2px; margin-right: 8px;"></div>
+                    <span style="font-size: 0.9em; color: #333;">${clasif} (${percentage.toFixed(1)}%)</span>
                 </div>
             `;
         }
@@ -119,7 +120,7 @@ function generarGraficaEstadistica(counts, total) {
 
 
     return `
-        <div style="display: flex; justify-content: center; margin: 20px 0;">
+        <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 20px 0;">
             <div style="
                 width: 150px;
                 height: 150px;
@@ -127,6 +128,7 @@ function generarGraficaEstadistica(counts, total) {
                 background: conic-gradient(${gradientStops});
                 position: relative;
                 box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                margin-right: 20px;
             ">
                 <div style="
                     position: absolute;
@@ -138,10 +140,9 @@ function generarGraficaEstadistica(counts, total) {
                     border-radius: 50%;
                 "></div>
             </div>
-        </div>
-        
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
-            ${simbologiaHTML}
+            <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 5px;">
+                ${simbologiaHTML}
+            </div>
         </div>
     `;
 }
@@ -198,7 +199,53 @@ if (imcForm) {
 }
 
 
-// --- 1. Imprimir Reporte Personal (imc.html) ---
+// -------------------------------------------------------------
+// --- 2. FUNCIONES DE REPORTE Y EVENTOS GLOBALES ---
+// -------------------------------------------------------------
+
+/**
+ * Función central para generar y abrir la ventana de impresión del reporte individual.
+ */
+function imprimirReporte(nombre, valorIMC, clasificacionIMC, recomendacionesHTML, fecha) {
+    const contenidoImprimir = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <h1 style="color: #198754; text-align: center;">Reporte Personal de IMC</h1>
+            <p style="text-align: right; font-size: 0.9em;">Fecha del Registro: ${fecha}</p>
+            <hr style="border: 1px solid #eee; margin: 20px 0;">
+
+            <h3 style="color: #0d6efd;">Datos y Resultados</h3>
+            <p><strong>Nombre:</strong> ${nombre}</p>
+            <p><strong>Valor de IMC:</strong> <span style="font-size: 1.5em; font-weight: bold; color: #dc3545;">${valorIMC}</span></p>
+            <p><strong>Clasificación:</strong> <span style="font-size: 1.2em; font-weight: bold;">${clasificacionIMC}</span></p>
+            
+            <h3 style="color: #0d6efd;">Recomendaciones Personalizadas</h3>
+            ${recomendacionesHTML}
+
+            <hr style="border: 1px solid #eee; margin: 20px 0;">
+            
+            ${tablaOMSHTML}
+
+            <p style="margin-top: 30px; font-size: 0.8em; text-align: center; color: #666;">
+                Este reporte es solo con fines informativos y no reemplaza la consulta profesional. Proyecto Escolar 2025.
+            </p>
+        </div>
+    `;
+
+    // Lógica de impresión en nueva ventana
+    const ventanaImpresion = window.open('', '_blank');
+    ventanaImpresion.document.write('<html><head><title>Reporte IMC Personal</title>');
+    ventanaImpresion.document.write('<style>');
+    ventanaImpresion.document.write('body { margin: 0; padding: 0; }');
+    ventanaImpresion.document.write('@media print { body { -webkit-print-color-adjust: exact; } }');
+    ventanaImpresion.document.write('</style>');
+    ventanaImpresion.document.write('</head><body>');
+    ventanaImpresion.document.write(contenidoImprimir);
+    ventanaImpresion.document.write('</body></html>');
+    ventanaImpresion.document.close();
+    ventanaImpresion.print();
+}
+
+// --- 2. Evento del Botón Imprimir Reporte Personal (imc.html) ---
 if (btnImprimirIndividual) {
     btnImprimirIndividual.addEventListener('click', () => { 
         const nombre = document.getElementById('nombre').value || 'Anónimo';
@@ -212,7 +259,7 @@ if (btnImprimirIndividual) {
 }
 
 
-// --- 2. Imprimir Reporte General (comunidad.html) ---
+// --- 3. Evento del Botón Imprimir Reporte General (comunidad.html) ---
 if (btnImprimirGeneral) {
     btnImprimirGeneral.addEventListener('click', () => {
         const registros = JSON.parse(localStorage.getItem('registrosIMC')) || [];
@@ -240,7 +287,7 @@ if (btnImprimirGeneral) {
         // Genera la gráfica de pastel
         const graficaHTML = generarGraficaEstadistica(clasificacionesCount, registros.length);
         
-        // 2. Crear lista de distribución de clasificaciones (usada para los cálculos, no para la lista final)
+        // 2. Crear lista de distribución (usada para los cálculos)
         
         // 3. Crear tabla de registros individuales
         let tablaRegistrosHTML = `
@@ -295,6 +342,26 @@ if (btnImprimirGeneral) {
                 
                 ${graficaHTML}
                 
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; margin: 5px 10px;">
+                        <div style="width: 10px; height: 10px; background-color: ${COLORES_FUERTES['Peso normal']}; border-radius: 2px; margin-right: 5px;"></div>
+                        <span style="font-size: 0.9em;">Peso normal (${(clasificacionesCount['Peso normal'] / registros.length * 100).toFixed(1)}%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 10px;">
+                        <div style="width: 10px; height: 10px; background-color: ${COLORES_FUERTES['Sobrepeso']}; border-radius: 2px; margin-right: 5px;"></div>
+                        <span style="font-size: 0.9em;">Sobrepeso (${(clasificacionesCount['Sobrepeso'] / registros.length * 100).toFixed(1)}%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 10px;">
+                        <div style="width: 10px; height: 10px; background-color: ${COLORES_FUERTES['Obesidad']}; border-radius: 2px; margin-right: 5px;"></div>
+                        <span style="font-size: 0.9em;">Obesidad (${(clasificacionesCount['Obesidad'] / registros.length * 100).toFixed(1)}%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 10px;">
+                        <div style="width: 10px; height: 10px; background-color: ${COLORES_FUERTES['Bajo peso']}; border-radius: 2px; margin-right: 5px;"></div>
+                        <span style="font-size: 0.9em;">Bajo peso (${(clasificacionesCount['Bajo peso'] / registros.length * 100).toFixed(1)}%)</span>
+                    </div>
+                </div>
+
+
                 <hr style="border: 1px solid #eee; margin: 20px 0;">
 
                 ${tablaRegistrosHTML}
@@ -320,7 +387,7 @@ if (btnImprimirGeneral) {
     });
 }
 
-// --- 4. Evento Global para Impresión Individual en la Comunidad (Continúa igual) ---
+// --- 4. Evento Global para Impresión Individual en la Comunidad ---
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('btn-reporte-individual')) {
         const btn = e.target;
