@@ -79,12 +79,12 @@ function generarRecomendaciones(imc) {
 function generarGraficaEstadistica(counts, total) {
     if (total === 0) return '';
 
-    // Mapeo de colores (USANDO LOS MISMOS COLORES DE FONDO DE LA TABLA)
+    // Mapeo de colores (SINCRONIZADO CON LA TABLA)
     const colorMap = {
-        'Bajo peso': '#fce4e4',    // Color pastel de la tabla (Bajo peso)
-        'Peso normal': '#e8f5e9',  // Color pastel de la tabla (Peso normal)
-        'Sobrepeso': '#fffde7',    // Color pastel de la tabla (Sobrepeso)
-        'Obesidad': '#ffcdd2',     // Color pastel de la tabla (Obesidad)
+        'Bajo peso': '#fce4e4',    
+        'Peso normal': '#e8f5e9',  
+        'Sobrepeso': '#fffde7',    
+        'Obesidad': '#ffcdd2',     
     };
 
     let gradientStops = '';
@@ -101,12 +101,10 @@ function generarGraficaEstadistica(counts, total) {
             const percentage = (value / total) * 100;
             const nextStop = currentStop + percentage;
             
-            // Crea el segmento de color (Color, Inicio%, Fin%)
             gradientStops += `${color} ${currentStop}% ${nextStop}%, `;
             currentStop = nextStop;
         }
     });
-    // Removemos la coma final
     gradientStops = gradientStops.slice(0, -2);
 
 
@@ -298,12 +296,24 @@ if (btnImprimirGeneral) {
                 </thead>
                 <tbody>
         `;
+        // Mapeo de colores de fondo para la tabla (SINCRONIZADO)
+        const coloresFondoTabla = {
+            'Bajo peso': '#fce4e4',
+            'Peso normal': '#e8f5e9',
+            'Sobrepeso': '#fffde7',
+            'Obesidad': '#ffcdd2',
+        };
+
         registros.forEach(registro => {
+            let clasifBase = registro.clasificacion;
+            if (clasifBase.includes('Obesidad')) { clasifBase = 'Obesidad'; }
+            const colorFondo = coloresFondoTabla[clasifBase] || 'transparent';
+
             tablaRegistrosHTML += `
                 <tr>
                     <td style="border: 1px solid #ddd; padding: 8px;">${registro.nombre}</td>
                     <td style="border: 1px solid #ddd; padding: 8px;">${registro.imc}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${registro.clasificacion}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; background-color: ${colorFondo};">${registro.clasificacion}</td>
                     <td style="border: 1px solid #ddd; padding: 8px;">${registro.fecha}</td>
                 </tr>
             `;
