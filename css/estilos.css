@@ -1,0 +1,166 @@
+/*
+ * Archivo: estilos.css
+ * Descripción: Estilos personalizados para el Proyecto de Salud Alimenticia
+ * Basado en Bootstrap 5 para un diseño responsivo y profesional.
+ */
+
+/* =========================================
+   1. VARIABLES Y FUENTES (Para consistencia)
+   ========================================= */
+
+/* Define la tipografía para todo el sitio */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* Fondo gris claro suave */
+    color: #343a40; /* Texto principal gris oscuro */
+}
+
+/* Colores de marca que complementan el 'bg-success' de Bootstrap (verde) */
+:root {
+    --color-principal: #198754; /* Verde éxito de Bootstrap */
+    --color-secundario: #0d6efd; /* Azul info */
+    --color-fondo-claro: #ffffff;
+    --color-texto-claro: #e9ecef; /* Gris muy claro */
+}
+
+/* =========================================
+   2. NAVEGACIÓN Y ENCABEZADOS
+   ========================================= */
+
+/* Estilo para la barra de navegación (sticky-top) */
+.navbar {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+.navbar-brand {
+    font-weight: 700; /* Negrita */
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--color-texto-claro) !important; 
+    border-bottom: 2px solid var(--color-texto-claro); /* Resaltado al pasar el mouse */
+}
+
+/* Encabezados principales */
+h1, h2, h3, h4 {
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.display-4, .display-5 {
+    letter-spacing: -0.5px;
+}
+
+/* =========================================
+   3. SECCIONES Y CONTENEDORES
+   ========================================= */
+
+/* Contenedores de contenido principal */
+.container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Estilo para las tarjetas (card) */
+.card {
+    border: none;
+    border-radius: 12px; /* Bordes redondeados */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px); /* Efecto de elevación al pasar el mouse */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para los alert/citas importantes */
+.blockquote {
+    border-radius: 8px;
+    background-color: #e9f7ef !important; /* Fondo verde muy claro para citas */
+}
+
+/* Llamada a la acción (CTA) */
+.btn-danger {
+    background-color: #dc3545; /* Rojo fuerte para acción */
+    border-color: #dc3545;
+    padding: 10px 25px;
+    font-weight: 600;
+    border-radius: 30px; /* Botón tipo píldora */
+    transition: background-color 0.3s;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* =========================================
+   4. SECCIONES ESPECÍFICAS
+   ========================================= */
+
+/* Estilo para la lista de registros en Comunidad */
+.list-group-item {
+    border-left: 5px solid var(--color-secundario);
+    margin-bottom: 8px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.list-group-item:hover {
+    background-color: #f1f1f1;
+}
+
+/* Mejorar el aspecto del resultado del IMC */
+#resultadoIMC {
+    border: 1px solid var(--color-principal);
+    background-color: var(--color-fondo-claro);
+    border-radius: 15px;
+}
+
+#valorIMC {
+    font-size: 4rem;
+    color: var(--color-secundario); /* Destacar el número con el color secundario */
+}
+
+/* =========================================
+   5. PIE DE PÁGINA
+   ========================================= */
+
+.footer {
+    background-color: #212529 !important; /* Negro oscuro */
+    color: var(--color-texto-claro);
+    padding: 20px 0;
+    border-top: 3px solid var(--color-principal); /* Línea divisoria de color */
+}
+
+/* Ajustes para enlaces en el footer */
+.footer a {
+    color: #0dcaf0; /* Azul claro para contrastar */
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* =========================================
+   6. RESPONSIVIDAD (Ajustes para móviles)
+   ========================================= */
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    .lead {
+        font-size: 1rem;
+    }
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+}
