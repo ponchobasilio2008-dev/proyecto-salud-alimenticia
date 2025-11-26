@@ -29,7 +29,6 @@ const tablaOMSHTML = `
 
 /**
  * Función para generar las recomendaciones HTML según el IMC.
- * (Necesaria para los reportes individuales en la página de Comunidad)
  */
 function generarRecomendaciones(imc) {
     let consejosHTML = '';
@@ -74,6 +73,79 @@ function generarRecomendaciones(imc) {
     return consejosHTML;
 }
 
+/**
+ * Genera una gráfica de pastel (anillo) simple usando HTML/CSS puro.
+ * @param {object} counts - Objeto con el conteo de cada clasificación.
+ * @param {number} total - Número total de registros
+ * @returns {string} Código HTML/CSS para la gráfica
+ */
+function generarGraficaEstadistica(counts, total) {
+    if (total === 0) return '';
+
+    let startAngle = 0;
+    const colors = {
+        'Bajo peso': '#ffbf00', // Amarillo/Naranja
+        'Peso normal': '#198754', // Verde (Success)
+        'Sobrepeso': '#ff9800', // Naranja
+        'Obesidad': '#dc3545', // Rojo (Danger)
+    };
+
+    let segments = '';
+    
+    // Calcula los porcentajes y genera los segmentos CSS
+    for (const clasif in counts) {
+        const value = counts[clasif];
+        if (value > 0) {
+            const percentage = (value / total) * 100;
+            const endAngle = startAngle + (percentage * 3.6); // 3.6 grados por porcentaje (360/100)
+            
+            // Crea el segmento del cono
+            segments += `<div style="
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                clip: rect(0, 50px, 100px, 0); /* Clip la mitad del círculo */
+                transform: rotate(${startAngle}deg);
+            ">
+                <div style="
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    clip: rect(0, 100px, 100px, 50px);
+                    background: ${colors[clasif] || '#ccc'};
+                    transform: rotate(${endAngle - startAngle}deg);
+                "></div>
+            </div>`;
+            
+            startAngle = endAngle;
+        }
+    }
+
+    // Estructura de la gráfica
+    return `
+        <div style="display: flex; justify-content: center; margin: 30px 0;">
+            <div style="
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            ">
+                ${segments}
+                <div style="
+                    position: absolute;
+                    top: 25px;
+                    left: 25px;
+                    width: 100px;
+                    height: 100px;
+                    background: white;
+                    border-radius: 50%;
+                "></div>
+            </div>
+        </div>
+    `;
+}
 
 // --- 1. Lógica al calcular IMC (imc.html) ---
 if (imcForm) {
@@ -131,17 +203,11 @@ if (imcForm) {
 // -------------------------------------------------------------
 
 /**
- * Función central para generar y abrir la ventana de impresión.
- * @param {string} nombre 
- * @param {string} valorIMC 
- * @param {string} clasificacionIMC 
- * @param {string} recomendacionesHTML 
- * @param {string} fecha 
- * @param {boolean} isGeneral (Si es reporte individual o un detalle general)
+ * Función central para generar y abrir la ventana de impresión del reporte individual.
  */
 function imprimirReporte(nombre, valorIMC, clasificacionIMC, recomendacionesHTML, fecha) {
     const contenidoImprimir = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <div style="font-family: Arial, Arial, sans-serif; padding: 20px; color: #333;">
             <h1 style="color: #198754; text-align: center;">Reporte Personal de IMC</h1>
             <p style="text-align: right; font-size: 0.9em;">Fecha del Registro: ${fecha}</p>
             <hr style="border: 1px solid #eee; margin: 20px 0;">
@@ -203,7 +269,7 @@ if (btnImprimirGeneral) {
             return;
         }
 
-        // CÁLCULOS ESTADÍSTICOS (Promedio, distribución, etc.)
+        // 1. Calcular promedios y estadísticas
         let totalIMC = 0;
         const clasificacionesCount = { 'Bajo peso': 0, 'Peso normal': 0, 'Sobrepeso': 0, 'Obesidad': 0 };
 
@@ -217,9 +283,10 @@ if (btnImprimirGeneral) {
 
         const promedioIMC = (totalIMC / registros.length).toFixed(2);
         
-        // Generar HTML del Reporte General
-        // ... (Este bloque es el mismo que ya tienes, generando las tablas y listas) ...
-
+        // Genera la gráfica de pastel
+        const graficaHTML = generarGraficaEstadistica(clasificacionesCount, registros.length);
+        
+        // 2. Crear lista de distribución de clasificaciones
         let distribucionClasificacionesHTML = '<ul style="list-style: none; padding: 0;">';
         for (const clasif in clasificacionesCount) {
             const count = clasificacionesCount[clasif];
@@ -230,6 +297,7 @@ if (btnImprimirGeneral) {
         }
         distribucionClasificacionesHTML += '</ul>';
 
+        // 3. Crear tabla de registros individuales
         let tablaRegistrosHTML = `
             <h4 style="color: #198754; margin-top: 30px;">Detalle de Registros Individuales</h4>
             <table style="width:100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em;">
@@ -261,13 +329,21 @@ if (btnImprimirGeneral) {
                 <h1 style="color: #198754; text-align: center;">Reporte General de la Comunidad IMC</h1>
                 <p style="text-align: right; font-size: 0.9em;">Fecha del Reporte: ${fechaActual}</p>
                 <hr style="border: 1px solid #eee; margin: 20px 0;">
+
                 <h3 style="color: #0d6efd;">Resumen de la Comunidad</h3>
                 <p><strong>Total de Registros:</strong> ${registros.length} estudiantes</p>
                 <p><strong>Promedio de IMC General:</strong> <span style="font-size: 1.5em; font-weight: bold; color: #dc3545;">${promedioIMC}</span></p>
+
                 <h4 style="color: #198754;">Distribución de Clasificaciones</h4>
+                
+                ${graficaHTML}
+                
                 ${distribucionClasificacionesHTML}
+
                 <hr style="border: 1px solid #eee; margin: 20px 0;">
+
                 ${tablaRegistrosHTML}
+                
                 <p style="margin-top: 30px; font-size: 0.8em; text-align: center; color: #666;">
                     Este reporte es un resumen estadístico de los datos ingresados localmente por la comunidad. Proyecto Escolar 2025.
                 </p>
