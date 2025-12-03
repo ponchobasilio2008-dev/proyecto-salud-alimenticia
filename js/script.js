@@ -1,5 +1,5 @@
 // ===========================================
-// LÓGICA PRINCIPAL Y CONFIGURACIÓN
+// LÓGICA PRINCIPAL: CÁLCULO, REGISTRO Y RECOMENDACIONES
 // ===========================================
 
 // --- Variables y referencias globales ---
@@ -12,7 +12,7 @@ const COLORES_FUERTES = {
     'Bajo peso': '#00A0E3',    // Azul fuerte
     'Peso normal': '#28A745',  // Verde fuerte (Success)
     'Sobrepeso': '#FFC107',    // Amarillo/Naranja fuerte
-    'Obesidad': '#DC3545',     // Rojo (Danger)
+    'Obesidad': '#DC3545',     // Rojo fuerte (Danger)
 };
 
 // Mapeo de colores PASTEL para fondos de tabla (más suaves para leer texto)
@@ -25,8 +25,8 @@ const COLORES_PASTEL = {
 
 // La tabla de la OMS para el reporte
 const tablaOMSHTML = `
-    <h4 style="color: #198754; margin-top: 20px;">Tabla de Clasificación IMC (OMS)</h4>
-    <table style="width:100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em;">
+    <h4 style="color: #198754;">Tabla de Clasificación IMC (OMS)</h4>
+    <table style="width:100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em;">
         <thead>
             <tr style="background-color: #f2f2f2;">
                 <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">IMC (kg/m²)</th>
@@ -40,7 +40,7 @@ const tablaOMSHTML = `
             <tr><td style="border: 1px solid #ddd; padding: 8px;">30.0 o más</td><td style="border: 1px solid #ddd; padding: 8px; background-color: ${COLORES_PASTEL['Obesidad']};">Obesidad</td></tr>
         </tbody>
     </table>
-    <p style="font-size: 0.8em; margin-top: 5px; color: #666;">Fuente: Organización Mundial de la Salud (OMS). Rangos estándar para adultos.</p>
+    <p style="font-size: 0.8em; margin-top: 5px;">Fuente: Organización Mundial de la Salud (OMS)</p>
 `;
 
 /**
@@ -51,33 +51,37 @@ function generarRecomendaciones(imc) {
     
     if (imc < 18.5) {
         consejosHTML = `
-            <p style="font-weight: bold; color: ${COLORES_FUERTES['Bajo peso']}">🚨 ¡Alerta de Bajo Peso!</p>
+            <p>🚨 **¡Alerta de Bajo Peso!**</p>
             <ul>
                 <li>Consulta Médica: Es vital acudir a un profesional.</li>
                 <li>Nutrientes Densos: Enfócate en alimentos nutritivos y calóricos.</li>
+                <li>Comidas Regulares: Asegúrate de tener tres comidas principales y dos colaciones.</li>
             </ul>
         `;
     } else if (imc >= 18.5 && imc <= 24.9) {
         consejosHTML = `
-            <p style="font-weight: bold; color: ${COLORES_FUERTES['Peso normal']}">✅ ¡Excelente! Peso Normal</p>
+            <p>✅ **¡Excelente! Peso Normal**</p>
             <ul>
                 <li>Mantén los Hábitos: Continúa con una dieta balanceada.</li>
-                <li>Actividad Física: Mantén al menos 150 minutos de ejercicio moderado semanal.</li>
+                <li>Actividad Física: Mantén al menos 150 minutos de ejercicio moderado.</li>
+                <li>Hidratación: Prioriza el consumo de agua natural.</li>
             </ul>
         `;
     } else if (imc >= 25.0 && imc <= 29.9) {
         consejosHTML = `
-            <p style="font-weight: bold; color: ${COLORES_FUERTES['Sobrepeso']}">⚠️ ¡Atención! Sobrepeso</p>
+            <p>⚠️ **¡Atención! Sobrepeso**</p>
             <ul>
-                <li>Reduce Azúcares: Limita refrescos, jugos y comida rápida.</li>
-                <li>Aumenta Fibra: Incrementa el consumo de verduras y agua simple.</li>
+                <li>Reduce Azúcares: Limita refrescos y jugos.</li>
+                <li>Aumenta Fibra: Incrementa frutas, verduras y cereales.</li>
+                <li>Actividad: Intenta caminar más o usar la bicicleta.</li>
             </ul>
         `;
     } else { // imc >= 30.0
         consejosHTML = `
-            <p style="font-weight: bold; color: ${COLORES_FUERTES['Obesidad']}">🛑 ¡Riesgo Alto! Obesidad</p>
+            <p>🛑 **¡Riesgo Alto! Obesidad**</p>
             <ul>
-                <li>Busca Ayuda Profesional: Inicia un plan con nutriólogo y médico.</li>
+                <li>Busca Ayuda Profesional: Inicia un plan con nutriólogo.</li>
+                <li>Ejercicio Gradual: Empieza con caminatas cortas.</li>
                 <li>Evita Ultraprocesados: Elimina alimentos con sellos de exceso.</li>
             </ul>
         `;
@@ -86,79 +90,118 @@ function generarRecomendaciones(imc) {
 }
 
 /**
- * =========================================================
- * NUEVA GRÁFICA GAUGE (MEDIDOR) DEFINITIVA
- * =========================================================
- * Genera el medidor estilo "velocímetro" con el valor IMC DENTRO de la gráfica.
- * Se usa tanto para reportes individuales como para el promedio general.
+ * GRÁFICA GAUGE (MEDIDOR) PARA REPORTE INDIVIDUAL
+ * Muestra el IMC específico del usuario en un arco de colores.
  */
-function generarGraficaGauge(imcVal, tituloGrafica = "Ubicación en el Espectro IMC") {
-    // 1. Definir límites visuales (ej. IMC de 14 a 40 para que se vea bien)
-    const minVisualIMC = 14;
-    const maxVisualIMC = 40;
-    const clampedIMC = Math.min(Math.max(imcVal, minVisualIMC), maxVisualIMC);
+function generarGraficaGauge(imcVal) {
+    const minIMC = 10;
+    const maxIMC = 45;
+    const clampedIMC = Math.min(Math.max(imcVal, minIMC), maxIMC);
+    const rotationAngle = ((clampedIMC - minIMC) / (maxIMC - minIMC)) * 180;
 
-    // 2. Calcular ángulo de la aguja (0 a 180 grados)
-    const rotationAngle = ((clampedIMC - minVisualIMC) / (maxVisualIMC - minVisualIMC)) * 180;
-
-    // Colores
+    // Colores del arco
     const cBajo = COLORES_FUERTES['Bajo peso'];
     const cNormal = COLORES_FUERTES['Peso normal'];
     const cSobre = COLORES_FUERTES['Sobrepeso'];
     const cObes = COLORES_FUERTES['Obesidad'];
 
-    // Gradiente cónico para el arco (ajustado para parecerse a la imagen de referencia)
+    // Gradiente cónico para simular el arco del medidor
     const gradient = `conic-gradient(from 270deg, 
-        ${cBajo} 0deg 30deg, 
-        ${cNormal} 30deg 85deg, 
-        ${cSobre} 85deg 125deg, 
-        ${cObes} 125deg 180deg)`;
+        ${cBajo} 0deg 43deg, 
+        ${cNormal} 43deg 77deg, 
+        ${cSobre} 77deg 103deg, 
+        ${cObes} 103deg 180deg)`;
 
     return `
-        <div style="margin: 20px auto; width: 350px; text-align: center; font-family: sans-serif;">
-            <h4 style="color: #333; margin-bottom: 15px;">${tituloGrafica}</h4>
-            
-            <div style="width: 350px; height: 175px; overflow: hidden; position: relative; margin: 0 auto;">
-                
-                <div style="width: 350px; height: 350px; border-radius: 50%; background: ${gradient}; position: absolute; top: 0; left:0; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);"></div>
-                
-                <div style="
-                    width: 250px; height: 250px; 
-                    border-radius: 50%; background: white; 
-                    position: absolute; top: 50px; left: 50px;
-                    display: flex; justify-content: center; align-items: flex-start;
-                    padding-top: 50px; box-sizing: border-box;
-                    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-                ">
-                    <div style="text-align: center;">
-                        <span style="font-size: 2.5em; font-weight: bold; color: #333; display: block; line-height: 1;">${imcVal.toFixed(1)}</span>
-                        <span style="font-size: 0.9em; color: #777;">IMC (kg/m²)</span>
-                    </div>
-                </div>
+        <div style="margin: 20px auto; width: 300px; text-align: center;">
+            <h4 style="color: #198754; margin-bottom: 10px;">Tu Ubicación en la Gráfica OMS</h4>
+            <div style="width: 300px; height: 150px; overflow: hidden; position: relative; margin: 0 auto;">
+                <div style="width: 300px; height: 300px; border-radius: 50%; background: ${gradient}; position: absolute; top: 0; left:0;"></div>
+                <div style="width: 220px; height: 220px; border-radius: 50%; background: white; position: absolute; top: 40px; left: 40px;"></div>
                 
                 <div style="
                     position: absolute; bottom: 0; left: 50%;
-                    width: 6px; height: 165px; /* Altura ajustada */
-                    background: transparent;
+                    width: 4px; height: 140px; background: #333;
                     transform-origin: bottom center;
                     transform: translateX(-50%) rotate(${rotationAngle}deg);
                     z-index: 10;
                 ">
-                     <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 25px solid #333; position: absolute; top: 10px; left: -7px;"></div>
+                     <div style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 15px solid #333; position: absolute; top: -10px; left: -6px;"></div>
                 </div>
-                <div style="width: 24px; height: 24px; background: #333; border-radius: 50%; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); z-index: 11;"></div>
+                <div style="width: 20px; height: 20px; background: #333; border-radius: 50%; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); z-index: 11;"></div>
             </div>
             
-            <div style="display: flex; justify-content: space-between; width: 350px; margin: 15px auto 0; font-size: 0.9em; color: #555; font-weight: bold; border-top: 1px solid #eee; padding-top: 5px;">
-                <span style="color: ${cBajo}">Bajo Peso</span>
+            <div style="display: flex; justify-content: space-between; width: 300px; margin: 5px auto 0; font-size: 0.8em; color: #555; font-weight: bold;">
+                <span style="color: ${cBajo}">Bajo</span>
                 <span style="color: ${cNormal}">Normal</span>
-                <span style="color: ${cSobre}">Sobrepeso</span>
+                <span style="color: ${cSobre}">Sobre</span>
                 <span style="color: ${cObes}">Obesidad</span>
             </div>
+             <p style="margin-top: 10px; font-weight: bold; font-size: 1.3em; color: #333;">Tu IMC: ${imcVal}</p>
         </div>
     `;
 }
 
+/**
+ * GRÁFICA PASTEL (DONUT) PARA REPORTE GENERAL
+ * Muestra la distribución estadística con colores fuertes y leyenda.
+ */
+function generarGraficaEstadistica(counts, total) {
+    if (total === 0) return '';
+
+    let gradientStops = '';
+    let currentStop = 0;
+    let simbologiaHTML = '';
+
+    const sortedClasificaciones = ['Bajo peso', 'Peso normal', 'Sobrepeso', 'Obesidad'];
+
+    sortedClasificaciones.forEach(clasif => {
+        const value = counts[clasif];
+        if (value > 0) {
+            const color = COLORES_FUERTES[clasif];
+            const percentage = (value / total) * 100;
+            const nextStop = currentStop + percentage;
+            
+            gradientStops += `${color} ${currentStop}% ${nextStop}%, `;
+            currentStop = nextStop;
+
+            simbologiaHTML += `
+                <div style="display: flex; align-items: center; margin: 5px 0;">
+                    <div style="width: 15px; height: 15px; background-color: ${color}; border-radius: 3px; margin-right: 8px;"></div>
+                    <span style="font-size: 0.9em; color: #333;">${clasif}: <strong>${percentage.toFixed(1)}%</strong></span>
+                </div>
+            `;
+        }
+    });
+    gradientStops = gradientStops.slice(0, -2);
+
+    return `
+        <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 30px;">
+            <div style="
+                width: 160px;
+                height: 160px;
+                border-radius: 50%;
+                background: conic-gradient(${gradientStops});
+                position: relative;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            ">
+                <div style="
+                    position: absolute;
+                    top: 35px;
+                    left: 35px;
+                    width: 90px;
+                    height: 90px;
+                    background: white;
+                    border-radius: 50%;
+                "></div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column;">
+                ${simbologiaHTML}
+            </div>
+        </div>
+    `;
+}
 
 // --- Lógica del Formulario de Cálculo (imc.html) ---
 if (imcForm) {
@@ -208,43 +251,39 @@ if (imcForm) {
 // --- Función Central de Impresión (Reporte Individual) ---
 function imprimirReporte(nombre, valorIMC, clasificacionIMC, recomendacionesHTML, fecha) {
     
-    // Generar gráfica Gauge para el IMC individual
-    const graficaGaugeHTML = generarGraficaGauge(parseFloat(valorIMC), "Tu Ubicación Personal");
+    // Generar gráfica visual del medidor
+    const graficaGaugeHTML = generarGraficaGauge(parseFloat(valorIMC));
 
     const contenidoImprimir = `
-        <div style="font-family: Arial, sans-serif; padding: 30px; color: #333; max-width: 850px; margin: 0 auto; background: white;">
-            <div style="border-bottom: 3px solid #198754; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="color: #198754; margin: 0; font-size: 28px;">Reporte Personal de IMC</h1>
-                <div style="text-align: right;">
-                    <p style="margin: 0; font-weight: bold; font-size: 1.1em;">${nombre}</p>
-                    <span style="font-size: 0.9em; color: #666;">Fecha: ${fecha}</span>
-                </div>
+        <div style="font-family: Arial, sans-serif; padding: 30px; color: #333; max-width: 800px; margin: 0 auto;">
+            <div style="border-bottom: 2px solid #198754; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h1 style="color: #198754; margin: 0; font-size: 24px;">Reporte Personal de IMC</h1>
+                <span style="font-size: 0.9em; color: #666;">Fecha: ${fecha}</span>
             </div>
 
-            <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: center;">
-                <div style="flex: 1; background: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    <h3 style="color: #0d6efd; margin-top: 0;">Diagnóstico</h3>
-                    <p style="font-size: 1.1em; margin-bottom: 10px;">Tu Índice de Masa Corporal es:</p>
-                    <p style="font-size: 2.5em; font-weight: bold; color: #333; margin: 10px 0; text-align: center;">${valorIMC}</p>
-                    <p style="font-size: 1.1em; text-align: center;">Clasificación: <span style="font-weight: bold; padding: 5px 10px; border-radius: 4px; background-color: ${COLORES_PASTEL[clasificacionIMC] || '#eee'}; color: ${COLORES_FUERTES[clasificacionIMC] || '#333'};">${clasificacionIMC}</span></p>
+            <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                <div style="flex: 1;">
+                    <h3 style="color: #0d6efd; border-bottom: 1px solid #eee; padding-bottom: 5px;">Datos del Estudiante</h3>
+                    <p style="font-size: 1.1em;"><strong>Nombre:</strong> ${nombre}</p>
+                    <p style="font-size: 1.1em;"><strong>IMC Calculado:</strong> <span style="font-size: 1.4em; font-weight: bold; color: #333;">${valorIMC}</span></p>
+                    <p style="font-size: 1.1em;"><strong>Clasificación:</strong> <span style="font-weight: bold; color: ${COLORES_FUERTES[clasificacionIMC] || '#333'};">${clasificacionIMC}</span></p>
                 </div>
-                <div style="flex: 1.2;">
+                <div style="flex: 1;">
                     ${graficaGaugeHTML}
                 </div>
             </div>
             
-            <div style="display: flex; gap: 30px;">
-                <div style="flex: 1;">
-                     <h3 style="color: #0d6efd; border-bottom: 1px solid #eee; padding-bottom: 5px;">Recomendaciones</h3>
-                     ${recomendacionesHTML}
-                </div>
-                <div style="flex: 1;">
-                    ${tablaOMSHTML}
-                </div>
+            <h3 style="color: #0d6efd; border-bottom: 1px solid #eee; padding-bottom: 5px;">Recomendaciones Personalizadas</h3>
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #0d6efd;">
+                ${recomendacionesHTML}
             </div>
 
-            <div style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 15px; text-align: center; font-size: 0.8em; color: #888;">
-                <p>Proyecto Salud Estudiantil 2025. Este reporte es una herramienta informativa y no sustituye el consejo médico profesional.</p>
+            <div style="margin-top: 30px;">
+                ${tablaOMSHTML}
+            </div>
+
+            <div style="margin-top: 40px; border-top: 1px solid #ccc; pt: 10px; text-align: center; font-size: 0.8em; color: #888;">
+                <p>© 2025 Proyecto Salud Estudiantil. Este reporte es informativo y no sustituye una consulta médica.</p>
             </div>
         </div>
     `;
@@ -273,13 +312,10 @@ function imprimirReporteGeneral() {
         else clasificacionesCount[clasif] = 1;
     });
 
-    const promedioIMC = (totalIMC / registros.length); // Mantenemos como número para la gráfica
-    const promedioIMCStr = promedioIMC.toFixed(2); // String para mostrar
-    
-    // USA LA MISMA GRÁFICA GAUGE PARA EL PROMEDIO GENERAL
-    const graficaHTML = generarGraficaGauge(promedioIMC, "Promedio General de la Comunidad");
+    const promedioIMC = (totalIMC / registros.length).toFixed(2);
+    const graficaHTML = generarGraficaEstadistica(clasificacionesCount, registros.length);
 
-    // Generar filas de la tabla con colores pastel
+    // Generar filas de la tabla con colores
     let filasTabla = '';
     registros.forEach(registro => {
         let clasifBase = registro.clasificacion;
@@ -289,7 +325,7 @@ function imprimirReporteGeneral() {
         filasTabla += `
             <tr>
                 <td style="border: 1px solid #ddd; padding: 8px;">${registro.nombre}</td>
-                <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">${registro.imc}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${registro.imc}</td>
                 <td style="border: 1px solid #ddd; padding: 8px; background-color: ${colorFondo};">${registro.clasificacion}</td>
                 <td style="border: 1px solid #ddd; padding: 8px;">${registro.fecha}</td>
             </tr>
@@ -297,35 +333,25 @@ function imprimirReporteGeneral() {
     });
 
     const contenidoImprimir = `
-        <div style="font-family: Arial, sans-serif; padding: 30px; color: #333; max-width: 850px; margin: 0 auto; background: white;">
-            <div style="border-bottom: 3px solid #198754; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="color: #198754; margin: 0; font-size: 28px;">Reporte General de Comunidad</h1>
+        <div style="font-family: Arial, sans-serif; padding: 30px; color: #333; max-width: 800px; margin: 0 auto;">
+            <div style="border-bottom: 2px solid #198754; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h1 style="color: #198754; margin: 0; font-size: 24px;">Reporte General de la Comunidad</h1>
                 <span style="font-size: 0.9em; color: #666;">Fecha: ${fechaActual}</span>
             </div>
 
-            <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: center;">
+            <div style="display: flex; gap: 20px; margin-bottom: 30px; align-items: center;">
                 <div style="flex: 1;">
                     <h3 style="color: #0d6efd;">Resumen Estadístico</h3>
-                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px;">
-                        <p style="font-size: 1.2em; margin-bottom: 15px;"><strong>Total de Estudiantes:</strong> ${registros.length}</p>
-                        <p style="font-size: 1.2em;"><strong>Promedio IMC General:</strong></p>
-                        <p style="font-size: 3em; font-weight: bold; color: #333; margin: 10px 0; line-height: 1;">${promedioIMCStr}</p>
-                    </div>
-                    
-                    <h4 style="margin-top: 20px; color: #555;">Distribución (Conteo):</h4>
-                    <ul style="list-style: none; padding: 0;">
-                        <li><span style="color:${COLORES_FUERTES['Peso normal']}">■</span> Normal: ${clasificacionesCount['Peso normal']}</li>
-                        <li><span style="color:${COLORES_FUERTES['Sobrepeso']}">■</span> Sobrepeso: ${clasificacionesCount['Sobrepeso']}</li>
-                        <li><span style="color:${COLORES_FUERTES['Obesidad']}">■</span> Obesidad: ${clasificacionesCount['Obesidad']}</li>
-                         <li><span style="color:${COLORES_FUERTES['Bajo peso']}">■</span> Bajo peso: ${clasificacionesCount['Bajo peso']}</li>
-                    </ul>
+                    <p style="font-size: 1.1em;"><strong>Total de Estudiantes:</strong> ${registros.length}</p>
+                    <p style="font-size: 1.1em;"><strong>Promedio de IMC General:</strong> <span style="font-size: 1.4em; font-weight: bold; color: #333;">${promedioIMC}</span></p>
                 </div>
-                <div style="flex: 1.3;">
+                <div style="flex: 1;">
+                    <h4 style="text-align: center; color: #666; margin-bottom: 10px;">Distribución de Casos</h4>
                     ${graficaHTML}
                 </div>
             </div>
 
-            <h3 style="color: #0d6efd; border-bottom: 1px solid #eee; padding-bottom: 5px; page-break-before: always;">Detalle de Registros Individuales</h3>
+            <h3 style="color: #0d6efd; border-bottom: 1px solid #eee; padding-bottom: 5px;">Detalle de Registros</h3>
             <table style="width:100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em;">
                 <thead>
                     <tr style="background-color: #f2f2f2;">
@@ -340,8 +366,8 @@ function imprimirReporteGeneral() {
                 </tbody>
             </table>
 
-            <div style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 15px; text-align: center; font-size: 0.8em; color: #888;">
-                <p>Proyecto Salud Estudiantil 2025. Resumen estadístico basado en registros locales.</p>
+            <div style="margin-top: 40px; border-top: 1px solid #ccc; pt: 10px; text-align: center; font-size: 0.8em; color: #888;">
+                <p>© 2025 Proyecto Salud Estudiantil. Resumen estadístico de datos locales.</p>
             </div>
         </div>
     `;
@@ -349,21 +375,16 @@ function imprimirReporteGeneral() {
     abrirVentanaImpresion(contenidoImprimir);
 }
 
-// Función auxiliar para abrir la ventana y asegurar estilos de impresión
+// Función auxiliar para abrir la ventana
 function abrirVentanaImpresion(contenido) {
     const ventana = window.open('', '_blank');
     ventana.document.write('<html><head><title>Reporte de Salud</title>');
-    ventana.document.write('<style>');
-    ventana.document.write('body { margin: 0; padding: 20px; font-family: sans-serif; background: #f4f4f4; }');
-    // CSS crucial para que los colores de fondo y gradientes se impriman
-    ventana.document.write('@media print { body { background: white; padding: 0; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; } }');
-    ventana.document.write('</style>');
+    ventana.document.write('<style>body { margin: 0; padding: 0; font-family: sans-serif; } @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>');
     ventana.document.write('</head><body>');
     ventana.document.write(contenido);
     ventana.document.write('</body></html>');
     ventana.document.close();
-    // Retraso para asegurar carga de estilos antes de imprimir
-    setTimeout(() => { ventana.print(); }, 800);
+    setTimeout(() => { ventana.print(); }, 500);
 }
 
 // --- Event Listeners para los botones ---
