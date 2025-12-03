@@ -7,60 +7,53 @@ const btnImprimirIndividual = document.getElementById('btnImprimirIndividual');
 const btnImprimirGeneral = document.getElementById('btnImprimirGeneral');
 const imcForm = document.getElementById('imcForm');
 
-// Mapeo de colores FUERTES para máxima visibilidad en gráficas
+// Mapeo de colores FUERTES para la Gráfica (Máxima Visibilidad)
 const COLORES_FUERTES = {
     'Bajo peso': '#00A0E3',    // Azul fuerte
-    'Peso normal': '#28A745',  // Verde fuerte (Success)
+    'Peso normal': '#28A745',  // Verde Bootstrap (Success)
     'Sobrepeso': '#FFC107',    // Amarillo/Naranja fuerte
-    'Obesidad': '#DC3545',     // Rojo fuerte (Danger)
+    'Obesidad': '#DC3545',     // Rojo (Danger)
 };
 
-// Mapeo de colores PASTEL para fondos de tabla (más suaves para leer texto)
-const COLORES_PASTEL = {
-    'Bajo peso': '#e1f5fe',    
-    'Peso normal': '#e8f5e9',  
-    'Sobrepeso': '#fffde7',    
-    'Obesidad': '#ffebee',     
-};
-
-// La tabla de la OMS para el reporte
+// La tabla de la OMS para el reporte (colores pastel de fondo)
 const tablaOMSHTML = `
-    <h4 style="color: #198754;">Tabla de Clasificación IMC (OMS)</h4>
+    <h4 style="color: #198754;">Tabla de IMC de la OMS</h4>
     <table style="width:100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em;">
         <thead>
             <tr style="background-color: #f2f2f2;">
-                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">IMC (kg/m²)</th>
-                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Clasificación</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">IMC</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Estado</th>
             </tr>
         </thead>
         <tbody>
-            <tr><td style="border: 1px solid #ddd; padding: 8px;">Menos de 18.5</td><td style="border: 1px solid #ddd; padding: 8px; background-color: ${COLORES_PASTEL['Bajo peso']};">Bajo peso</td></tr> 
-            <tr><td style="border: 1px solid #ddd; padding: 8px;">18.5 - 24.9</td><td style="border: 1px solid #ddd; padding: 8px; background-color: ${COLORES_PASTEL['Peso normal']};">Peso normal</td></tr>
-            <tr><td style="border: 1px solid #ddd; padding: 8px;">25.0 - 29.9</td><td style="border: 1px solid #ddd; padding: 8px; background-color: ${COLORES_PASTEL['Sobrepeso']};">Sobrepeso</td></tr>
-            <tr><td style="border: 1px solid #ddd; padding: 8px;">30.0 o más</td><td style="border: 1px solid #ddd; padding: 8px; background-color: ${COLORES_PASTEL['Obesidad']};">Obesidad</td></tr>
+            <tr><td style="border: 1px solid #ddd; padding: 8px;">Menos de 18.5</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #fce4e4;">Bajo peso</td></tr> 
+            <tr><td style="border: 1px solid #ddd; padding: 8px;">18.5 - 24.9</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #e8f5e9;">Peso normal</td></tr>
+            <tr><td style="border: 1px solid #ddd; padding: 8px;">25.0 - 29.9</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #fffde7;">Sobrepeso</td></tr>
+            <tr><td style="border: 1px solid #ddd; padding: 8px;">30.0 o más</td><td style="border: 1px solid #ddd; padding: 8px; background-color: #ffcdd2;">Obesidad</td></tr>
         </tbody>
     </table>
     <p style="font-size: 0.8em; margin-top: 5px;">Fuente: Organización Mundial de la Salud (OMS)</p>
 `;
 
 /**
- * Genera las recomendaciones de texto según el IMC.
+ * Función para generar las recomendaciones HTML según el IMC.
+ * (Función no alterada, solo la he incluido para completitud)
  */
 function generarRecomendaciones(imc) {
     let consejosHTML = '';
     
     if (imc < 18.5) {
         consejosHTML = `
-            <p>🚨 **¡Alerta de Bajo Peso!**</p>
+            <p>🚨 **¡Alerta de Bajo Peso!** Tu IMC indica que podrías tener un peso insuficiente.</p>
             <ul>
-                <li>Consulta Médica: Es vital acudir a un profesional.</li>
+                <li>Consulta Médica: Es vital acudir a un profesional (médico o nutriólogo).</li>
                 <li>Nutrientes Densos: Enfócate en alimentos nutritivos y calóricos.</li>
                 <li>Comidas Regulares: Asegúrate de tener tres comidas principales y dos colaciones.</li>
             </ul>
         `;
     } else if (imc >= 18.5 && imc <= 24.9) {
         consejosHTML = `
-            <p>✅ **¡Excelente! Peso Normal**</p>
+            <p>✅ **¡Excelente!** Tu IMC está dentro del rango normal.</p>
             <ul>
                 <li>Mantén los Hábitos: Continúa con una dieta balanceada.</li>
                 <li>Actividad Física: Mantén al menos 150 minutos de ejercicio moderado.</li>
@@ -69,20 +62,20 @@ function generarRecomendaciones(imc) {
         `;
     } else if (imc >= 25.0 && imc <= 29.9) {
         consejosHTML = `
-            <p>⚠️ **¡Atención! Sobrepeso**</p>
+            <p>⚠️ **¡Atención!** Tu IMC está en el rango de sobrepeso.</p>
             <ul>
-                <li>Reduce Azúcares: Limita refrescos y jugos.</li>
-                <li>Aumenta Fibra: Incrementa frutas, verduras y cereales.</li>
-                <li>Actividad: Intenta caminar más o usar la bicicleta.</li>
+                <li>Reduce Azúcares y Grasas: Limita el consumo de refrescos, jugos y comida rápida.</li>
+                <li>Aumenta Fibra: Incrementa frutas, verduras y cereales integrales.</li>
+                <li>Incrementa la Actividad: Intenta caminar o usar la bicicleta para distancias cortas.</li>
             </ul>
         `;
-    } else { // imc >= 30.0
+    } else { // imc >= 30.0 (Obesidad)
         consejosHTML = `
-            <p>🛑 **¡Riesgo Alto! Obesidad**</p>
+            <p>🛑 **¡Riesgo Alto!** Tu IMC está en el rango de obesidad.</p>
             <ul>
-                <li>Busca Ayuda Profesional: Inicia un plan con nutriólogo.</li>
-                <li>Ejercicio Gradual: Empieza con caminatas cortas.</li>
-                <li>Evita Ultraprocesados: Elimina alimentos con sellos de exceso.</li>
+                <li>Busca Ayuda Profesional: Es fundamental iniciar un plan integral con nutriólogo y médico.</li>
+                <li>Ejercicio Gradual: Empieza con caminatas cortas y aumenta la intensidad lentamente.</li>
+                <li>Evita Ultraprocesados: Elimina o minimiza drásticamente los alimentos ultraprocesados.</li>
             </ul>
         `;
     }
@@ -90,61 +83,7 @@ function generarRecomendaciones(imc) {
 }
 
 /**
- * GRÁFICA GAUGE (MEDIDOR) PARA REPORTE INDIVIDUAL
- * Muestra el IMC específico del usuario en un arco de colores.
- */
-function generarGraficaGauge(imcVal) {
-    const minIMC = 10;
-    const maxIMC = 45;
-    const clampedIMC = Math.min(Math.max(imcVal, minIMC), maxIMC);
-    const rotationAngle = ((clampedIMC - minIMC) / (maxIMC - minIMC)) * 180;
-
-    // Colores del arco
-    const cBajo = COLORES_FUERTES['Bajo peso'];
-    const cNormal = COLORES_FUERTES['Peso normal'];
-    const cSobre = COLORES_FUERTES['Sobrepeso'];
-    const cObes = COLORES_FUERTES['Obesidad'];
-
-    // Gradiente cónico para simular el arco del medidor
-    const gradient = `conic-gradient(from 270deg, 
-        ${cBajo} 0deg 43deg, 
-        ${cNormal} 43deg 77deg, 
-        ${cSobre} 77deg 103deg, 
-        ${cObes} 103deg 180deg)`;
-
-    return `
-        <div style="margin: 20px auto; width: 300px; text-align: center;">
-            <h4 style="color: #198754; margin-bottom: 10px;">Tu Ubicación en la Gráfica OMS</h4>
-            <div style="width: 300px; height: 150px; overflow: hidden; position: relative; margin: 0 auto;">
-                <div style="width: 300px; height: 300px; border-radius: 50%; background: ${gradient}; position: absolute; top: 0; left:0;"></div>
-                <div style="width: 220px; height: 220px; border-radius: 50%; background: white; position: absolute; top: 40px; left: 40px;"></div>
-                
-                <div style="
-                    position: absolute; bottom: 0; left: 50%;
-                    width: 4px; height: 140px; background: #333;
-                    transform-origin: bottom center;
-                    transform: translateX(-50%) rotate(${rotationAngle}deg);
-                    z-index: 10;
-                ">
-                     <div style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 15px solid #333; position: absolute; top: -10px; left: -6px;"></div>
-                </div>
-                <div style="width: 20px; height: 20px; background: #333; border-radius: 50%; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); z-index: 11;"></div>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; width: 300px; margin: 5px auto 0; font-size: 0.8em; color: #555; font-weight: bold;">
-                <span style="color: ${cBajo}">Bajo</span>
-                <span style="color: ${cNormal}">Normal</span>
-                <span style="color: ${cSobre}">Sobre</span>
-                <span style="color: ${cObes}">Obesidad</span>
-            </div>
-             <p style="margin-top: 10px; font-weight: bold; font-size: 1.3em; color: #333;">Tu IMC: ${imcVal}</p>
-        </div>
-    `;
-}
-
-/**
- * GRÁFICA PASTEL (DONUT) PARA REPORTE GENERAL
- * Muestra la distribución estadística con colores fuertes y leyenda.
+ * Genera una gráfica de pastel (anillo) y la simbología con colores FUERTES.
  */
 function generarGraficaEstadistica(counts, total) {
     if (total === 0) return '';
@@ -153,8 +92,10 @@ function generarGraficaEstadistica(counts, total) {
     let currentStop = 0;
     let simbologiaHTML = '';
 
+    // Orden de las clasificaciones para la visualización
     const sortedClasificaciones = ['Bajo peso', 'Peso normal', 'Sobrepeso', 'Obesidad'];
 
+    // 1. Genera la cadena CSS para el conic-gradient y la simbología
     sortedClasificaciones.forEach(clasif => {
         const value = counts[clasif];
         if (value > 0) {
@@ -162,48 +103,52 @@ function generarGraficaEstadistica(counts, total) {
             const percentage = (value / total) * 100;
             const nextStop = currentStop + percentage;
             
+            // Crea el segmento de color
             gradientStops += `${color} ${currentStop}% ${nextStop}%, `;
             currentStop = nextStop;
 
+            // Crea la entrada en la simbología (Leyenda) con el porcentaje
             simbologiaHTML += `
                 <div style="display: flex; align-items: center; margin: 5px 0;">
-                    <div style="width: 15px; height: 15px; background-color: ${color}; border-radius: 3px; margin-right: 8px;"></div>
-                    <span style="font-size: 0.9em; color: #333;">${clasif}: <strong>${percentage.toFixed(1)}%</strong></span>
+                    <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 2px; margin-right: 8px;"></div>
+                    <span style="font-size: 0.9em; color: #333;">${clasif} (${percentage.toFixed(1)}%)</span>
                 </div>
             `;
         }
     });
     gradientStops = gradientStops.slice(0, -2);
 
+
     return `
-        <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 30px;">
+        <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 20px 0;">
             <div style="
-                width: 160px;
-                height: 160px;
+                width: 150px;
+                height: 150px;
                 border-radius: 50%;
                 background: conic-gradient(${gradientStops});
                 position: relative;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                margin-right: 20px;
             ">
                 <div style="
                     position: absolute;
-                    top: 35px;
-                    left: 35px;
+                    top: 30px;
+                    left: 30px;
                     width: 90px;
                     height: 90px;
                     background: white;
                     border-radius: 50%;
                 "></div>
             </div>
-            
-            <div style="display: flex; flex-direction: column;">
+            <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 5px;">
                 ${simbologiaHTML}
             </div>
         </div>
     `;
 }
 
-// --- Lógica del Formulario de Cálculo (imc.html) ---
+// --- Lógica del formulario (Continúa igual) ---
+
 if (imcForm) {
     imcForm.addEventListener('submit', function(e) {
         e.preventDefault(); 
@@ -213,7 +158,7 @@ if (imcForm) {
         const altura = parseFloat(document.getElementById('altura').value);
 
         if (isNaN(peso) || isNaN(altura) || peso <= 0 || altura <= 0) {
-            alert('Por favor, ingresa valores válidos y positivos.');
+            alert('Por favor, ingresa valores válidos y positivos para peso y altura.');
             return;
         }
 
@@ -223,20 +168,22 @@ if (imcForm) {
         let clasificacionTexto = '';
         let colorClasificacion = 'text-dark'; 
         
+        // Determinar clasificación para la interfaz
         if (imc < 18.5) { clasificacionTexto = 'Bajo peso'; colorClasificacion = 'text-warning'; } 
         else if (imc >= 18.5 && imc <= 24.9) { clasificacionTexto = 'Peso normal'; colorClasificacion = 'text-success'; } 
         else if (imc >= 25.0 && imc <= 29.9) { clasificacionTexto = 'Sobrepeso'; colorClasificacion = 'text-warning'; } 
         else { clasificacionTexto = 'Obesidad'; colorClasificacion = 'text-danger'; }
 
+        // Generar consejos para la interfaz
         const consejosHTML = generarRecomendaciones(imc);
 
-        // Registro
+        // Registro en LocalStorage
         const nuevoRegistro = { nombre, imc: imcRedondeado, clasificacion: clasificacionTexto, fecha: new Date().toLocaleDateString('es-MX') };
         let registros = JSON.parse(localStorage.getItem('registrosIMC')) || [];
         registros.push(nuevoRegistro);
         localStorage.setItem('registrosIMC', JSON.stringify(registros));
         
-        // Mostrar
+        // Mostrar Resultados en el DOM
         document.getElementById('valorIMC').textContent = imcRedondeado;
         document.getElementById('clasificacion').textContent = clasificacionTexto;
         document.getElementById('clasificacion').className = `fw-bold fs-3 ${colorClasificacion}`; 
@@ -244,114 +191,107 @@ if (imcForm) {
         document.getElementById('resultadoIMC').style.display = 'block';
         document.getElementById('mensajeInicial').style.display = 'none';
 
-        if (btnImprimirIndividual) btnImprimirIndividual.style.display = 'block';
+        // Mostrar el botón de impresión individual
+        if (btnImprimirIndividual) {
+            btnImprimirIndividual.style.display = 'block';
+        }
     });
 }
 
-// --- Función Central de Impresión (Reporte Individual) ---
+
+// -------------------------------------------------------------
+// --- 2. FUNCIONES DE REPORTE Y EVENTOS GLOBALES ---
+// -------------------------------------------------------------
+
+/**
+ * Función central para generar y abrir la ventana de impresión del reporte individual.
+ */
 function imprimirReporte(nombre, valorIMC, clasificacionIMC, recomendacionesHTML, fecha) {
-    
-    // Generar gráfica visual del medidor
-    const graficaGaugeHTML = generarGraficaGauge(parseFloat(valorIMC));
-
     const contenidoImprimir = `
-        <div style="font-family: Arial, sans-serif; padding: 30px; color: #333; max-width: 800px; margin: 0 auto;">
-            <div style="border-bottom: 2px solid #198754; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="color: #198754; margin: 0; font-size: 24px;">Reporte Personal de IMC</h1>
-                <span style="font-size: 0.9em; color: #666;">Fecha: ${fecha}</span>
-            </div>
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <h1 style="color: #198754; text-align: center;">Reporte Personal de IMC</h1>
+            <p style="text-align: right; font-size: 0.9em;">Fecha del Registro: ${fecha}</p>
+            <hr style="border: 1px solid #eee; margin: 20px 0;">
 
-            <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-                <div style="flex: 1;">
-                    <h3 style="color: #0d6efd; border-bottom: 1px solid #eee; padding-bottom: 5px;">Datos del Estudiante</h3>
-                    <p style="font-size: 1.1em;"><strong>Nombre:</strong> ${nombre}</p>
-                    <p style="font-size: 1.1em;"><strong>IMC Calculado:</strong> <span style="font-size: 1.4em; font-weight: bold; color: #333;">${valorIMC}</span></p>
-                    <p style="font-size: 1.1em;"><strong>Clasificación:</strong> <span style="font-weight: bold; color: ${COLORES_FUERTES[clasificacionIMC] || '#333'};">${clasificacionIMC}</span></p>
-                </div>
-                <div style="flex: 1;">
-                    ${graficaGaugeHTML}
-                </div>
-            </div>
+            <h3 style="color: #0d6efd;">Datos y Resultados</h3>
+            <p><strong>Nombre:</strong> ${nombre}</p>
+            <p><strong>Valor de IMC:</strong> <span style="font-size: 1.5em; font-weight: bold; color: #dc3545;">${valorIMC}</span></p>
+            <p><strong>Clasificación:</strong> <span style="font-size: 1.2em; font-weight: bold;">${clasificacionIMC}</span></p>
             
-            <h3 style="color: #0d6efd; border-bottom: 1px solid #eee; padding-bottom: 5px;">Recomendaciones Personalizadas</h3>
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #0d6efd;">
-                ${recomendacionesHTML}
-            </div>
+            <h3 style="color: #0d6efd;">Recomendaciones Personalizadas</h3>
+            ${recomendacionesHTML}
 
-            <div style="margin-top: 30px;">
-                ${tablaOMSHTML}
-            </div>
+            <hr style="border: 1px solid #eee; margin: 20px 0;">
+            
+            ${tablaOMSHTML}
 
-            <div style="margin-top: 40px; border-top: 1px solid #ccc; pt: 10px; text-align: center; font-size: 0.8em; color: #888;">
-                <p>© 2025 Proyecto Salud Estudiantil. Este reporte es informativo y no sustituye una consulta médica.</p>
-            </div>
+            <p style="margin-top: 30px; font-size: 0.8em; text-align: center; color: #666;">
+                Este reporte es solo con fines informativos y no reemplaza la consulta profesional. Proyecto Escolar 2025.
+            </p>
         </div>
     `;
 
-    abrirVentanaImpresion(contenidoImprimir);
+    // Lógica de impresión en nueva ventana
+    const ventanaImpresion = window.open('', '_blank');
+    ventanaImpresion.document.write('<html><head><title>Reporte IMC Personal</title>');
+    ventanaImpresion.document.write('<style>');
+    ventanaImpresion.document.write('body { margin: 0; padding: 0; }');
+    ventanaImpresion.document.write('@media print { body { -webkit-print-color-adjust: exact; } }');
+    ventanaImpresion.document.write('</style>');
+    ventanaImpresion.document.write('</head><body>');
+    ventanaImpresion.document.write(contenidoImprimir);
+    ventanaImpresion.document.write('</body></html>');
+    ventanaImpresion.document.close();
+    ventanaImpresion.print();
 }
 
-// --- Función Central de Impresión (Reporte General) ---
-function imprimirReporteGeneral() {
-    const registros = JSON.parse(localStorage.getItem('registrosIMC')) || [];
-    const fechaActual = new Date().toLocaleDateString('es-ES');
+// --- 2. Evento del Botón Imprimir Reporte Personal (imc.html) ---
+if (btnImprimirIndividual) {
+    btnImprimirIndividual.addEventListener('click', () => { 
+        const nombre = document.getElementById('nombre').value || 'Anónimo';
+        const valorIMC = document.getElementById('valorIMC').innerText;
+        const clasificacionIMC = document.getElementById('clasificacion').innerText;
+        const recomendacionesHTML = document.getElementById('consejos').innerHTML;
+        const fechaActual = new Date().toLocaleDateString('es-MX');
 
-    if (registros.length === 0) {
-        alert('No hay registros para generar un reporte.');
-        return;
-    }
-
-    let totalIMC = 0;
-    const clasificacionesCount = { 'Bajo peso': 0, 'Peso normal': 0, 'Sobrepeso': 0, 'Obesidad': 0 };
-
-    registros.forEach(registro => {
-        totalIMC += parseFloat(registro.imc);
-        let clasif = registro.clasificacion;
-        if (clasif.includes('Obesidad')) clasif = 'Obesidad';
-        if (clasificacionesCount.hasOwnProperty(clasif)) clasificacionesCount[clasif]++;
-        else clasificacionesCount[clasif] = 1;
+        imprimirReporte(nombre, valorIMC, clasificacionIMC, recomendacionesHTML, fechaActual);
     });
+}
 
-    const promedioIMC = (totalIMC / registros.length).toFixed(2);
-    const graficaHTML = generarGraficaEstadistica(clasificacionesCount, registros.length);
 
-    // Generar filas de la tabla con colores
-    let filasTabla = '';
-    registros.forEach(registro => {
-        let clasifBase = registro.clasificacion;
-        if (clasifBase.includes('Obesidad')) clasifBase = 'Obesidad';
-        const colorFondo = COLORES_PASTEL[clasifBase] || 'transparent';
+// --- 3. Evento del Botón Imprimir Reporte General (comunidad.html) ---
+if (btnImprimirGeneral) {
+    btnImprimirGeneral.addEventListener('click', () => {
+        const registros = JSON.parse(localStorage.getItem('registrosIMC')) || [];
+        const fechaActual = new Date().toLocaleDateString('es-ES');
 
-        filasTabla += `
-            <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">${registro.nombre}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${registro.imc}</td>
-                <td style="border: 1px solid #ddd; padding: 8px; background-color: ${colorFondo};">${registro.clasificacion}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${registro.fecha}</td>
-            </tr>
-        `;
-    });
+        if (registros.length === 0) {
+            alert('No hay registros para generar un reporte general.');
+            return;
+        }
 
-    const contenidoImprimir = `
-        <div style="font-family: Arial, sans-serif; padding: 30px; color: #333; max-width: 800px; margin: 0 auto;">
-            <div style="border-bottom: 2px solid #198754; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="color: #198754; margin: 0; font-size: 24px;">Reporte General de la Comunidad</h1>
-                <span style="font-size: 0.9em; color: #666;">Fecha: ${fechaActual}</span>
-            </div>
+        // 1. Calcular promedios y estadísticas
+        let totalIMC = 0;
+        const clasificacionesCount = { 'Bajo peso': 0, 'Peso normal': 0, 'Sobrepeso': 0, 'Obesidad': 0 };
 
-            <div style="display: flex; gap: 20px; margin-bottom: 30px; align-items: center;">
-                <div style="flex: 1;">
-                    <h3 style="color: #0d6efd;">Resumen Estadístico</h3>
-                    <p style="font-size: 1.1em;"><strong>Total de Estudiantes:</strong> ${registros.length}</p>
-                    <p style="font-size: 1.1em;"><strong>Promedio de IMC General:</strong> <span style="font-size: 1.4em; font-weight: bold; color: #333;">${promedioIMC}</span></p>
-                </div>
-                <div style="flex: 1;">
-                    <h4 style="text-align: center; color: #666; margin-bottom: 10px;">Distribución de Casos</h4>
-                    ${graficaHTML}
-                </div>
-            </div>
+        registros.forEach(registro => {
+            totalIMC += parseFloat(registro.imc);
+            let clasif = registro.clasificacion;
+            if (clasif.includes('Obesidad')) { clasif = 'Obesidad'; }
+            if (clasificacionesCount.hasOwnProperty(clasif)) { clasificacionesCount[clasif]++; }
+            else { clasificacionesCount[clasif] = 1; }
+        });
 
-            <h3 style="color: #0d6efd; border-bottom: 1px solid #eee; padding-bottom: 5px;">Detalle de Registros</h3>
+        const promedioIMC = (totalIMC / registros.length).toFixed(2);
+        
+        // Genera la gráfica de pastel
+        const graficaHTML = generarGraficaEstadistica(clasificacionesCount, registros.length);
+        
+        // 2. Crear lista de distribución (usada para los cálculos)
+        
+        // 3. Crear tabla de registros individuales
+        let tablaRegistrosHTML = `
+            <h4 style="color: #198754; margin-top: 30px;">Detalle de Registros Individuales</h4>
             <table style="width:100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em;">
                 <thead>
                     <tr style="background-color: #f2f2f2;">
@@ -362,58 +302,107 @@ function imprimirReporteGeneral() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${filasTabla}
-                </tbody>
-            </table>
+        `;
+        // Mapeo de colores de fondo para la tabla (SINCRONIZADO con la tabla OMS)
+        const coloresFondoTabla = {
+            'Bajo peso': '#fce4e4',
+            'Peso normal': '#e8f5e9',
+            'Sobrepeso': '#fffde7',
+            'Obesidad': '#ffcdd2',
+        };
 
-            <div style="margin-top: 40px; border-top: 1px solid #ccc; pt: 10px; text-align: center; font-size: 0.8em; color: #888;">
-                <p>© 2025 Proyecto Salud Estudiantil. Resumen estadístico de datos locales.</p>
+        registros.forEach(registro => {
+            let clasifBase = registro.clasificacion;
+            if (clasifBase.includes('Obesidad')) { clasifBase = 'Obesidad'; }
+            const colorFondo = coloresFondoTabla[clasifBase] || 'transparent';
+
+            tablaRegistrosHTML += `
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${registro.nombre}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${registro.imc}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; background-color: ${colorFondo};">${registro.clasificacion}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${registro.fecha}</td>
+                </tr>
+            `;
+        });
+        tablaRegistrosHTML += `</tbody></table>`;
+
+
+        const contenidoImprimir = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                <h1 style="color: #198754; text-align: center;">Reporte General de la Comunidad IMC</h1>
+                <p style="text-align: right; font-size: 0.9em;">Fecha del Reporte: ${fechaActual}</p>
+                <hr style="border: 1px solid #eee; margin: 20px 0;">
+
+                <h3 style="color: #0d6efd;">Resumen de la Comunidad</h3>
+                <p><strong>Total de Registros:</strong> ${registros.length} estudiantes</p>
+                <p><strong>Promedio de IMC General:</strong> <span style="font-size: 1.5em; font-weight: bold; color: #dc3545;">${promedioIMC}</span></p>
+
+                <h4 style="color: #198754;">Distribución de Clasificaciones</h4>
+                
+                ${graficaHTML}
+                
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; margin: 5px 10px;">
+                        <div style="width: 10px; height: 10px; background-color: ${COLORES_FUERTES['Peso normal']}; border-radius: 2px; margin-right: 5px;"></div>
+                        <span style="font-size: 0.9em;">Peso normal (${(clasificacionesCount['Peso normal'] / registros.length * 100).toFixed(1)}%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 10px;">
+                        <div style="width: 10px; height: 10px; background-color: ${COLORES_FUERTES['Sobrepeso']}; border-radius: 2px; margin-right: 5px;"></div>
+                        <span style="font-size: 0.9em;">Sobrepeso (${(clasificacionesCount['Sobrepeso'] / registros.length * 100).toFixed(1)}%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 10px;">
+                        <div style="width: 10px; height: 10px; background-color: ${COLORES_FUERTES['Obesidad']}; border-radius: 2px; margin-right: 5px;"></div>
+                        <span style="font-size: 0.9em;">Obesidad (${(clasificacionesCount['Obesidad'] / registros.length * 100).toFixed(1)}%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 10px;">
+                        <div style="width: 10px; height: 10px; background-color: ${COLORES_FUERTES['Bajo peso']}; border-radius: 2px; margin-right: 5px;"></div>
+                        <span style="font-size: 0.9em;">Bajo peso (${(clasificacionesCount['Bajo peso'] / registros.length * 100).toFixed(1)}%)</span>
+                    </div>
+                </div>
+
+
+                <hr style="border: 1px solid #eee; margin: 20px 0;">
+
+                ${tablaRegistrosHTML}
+                
+                <p style="margin-top: 30px; font-size: 0.8em; text-align: center; color: #666;">
+                    Este reporte es un resumen estadístico de los datos ingresados localmente por la comunidad. Proyecto Escolar 2025.
+                </p>
             </div>
-        </div>
-    `;
+        `;
 
-    abrirVentanaImpresion(contenidoImprimir);
-}
-
-// Función auxiliar para abrir la ventana
-function abrirVentanaImpresion(contenido) {
-    const ventana = window.open('', '_blank');
-    ventana.document.write('<html><head><title>Reporte de Salud</title>');
-    ventana.document.write('<style>body { margin: 0; padding: 0; font-family: sans-serif; } @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>');
-    ventana.document.write('</head><body>');
-    ventana.document.write(contenido);
-    ventana.document.write('</body></html>');
-    ventana.document.close();
-    setTimeout(() => { ventana.print(); }, 500);
-}
-
-// --- Event Listeners para los botones ---
-if (btnImprimirIndividual) {
-    btnImprimirIndividual.addEventListener('click', () => { 
-        const nombre = document.getElementById('nombre').value || 'Anónimo';
-        const valorIMC = document.getElementById('valorIMC').innerText;
-        const clasificacionIMC = document.getElementById('clasificacion').innerText;
-        const recomendacionesHTML = document.getElementById('consejos').innerHTML;
-        const fechaActual = new Date().toLocaleDateString('es-MX');
-        imprimirReporte(nombre, valorIMC, clasificacionIMC, recomendacionesHTML, fechaActual);
+        // Lógica de impresión en nueva ventana
+        const ventanaImpresion = window.open('', '_blank');
+        ventanaImpresion.document.write('<html><head><title>Reporte IMC General</title>');
+        ventanaImpresion.document.write('<style>');
+        ventanaImpresion.document.write('body { margin: 0; padding: 0; }');
+        ventanaImpresion.document.write('@media print { body { -webkit-print-color-adjust: exact; } }');
+        ventanaImpresion.document.write('</style>');
+        ventanaImpresion.document.write('</head><body>');
+        ventanaImpresion.document.write(contenidoImprimir);
+        ventanaImpresion.document.write('</body></html>');
+        ventanaImpresion.document.close();
+        ventanaImpresion.print();
     });
 }
 
-if (btnImprimirGeneral) {
-    btnImprimirGeneral.addEventListener('click', imprimirReporteGeneral);
-}
-
-// Evento global para botones dinámicos en la lista de comunidad
+// --- 4. Evento Global para Impresión Individual en la Comunidad ---
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('btn-reporte-individual')) {
         const btn = e.target;
         const imcVal = parseFloat(btn.getAttribute('data-imc'));
+        
+        // Obtener datos del atributo data-
         const nombre = btn.getAttribute('data-nombre');
         const imcRedondeado = btn.getAttribute('data-imc');
         const clasificacionTexto = btn.getAttribute('data-clasificacion');
         const fecha = btn.getAttribute('data-fecha');
         
+        // Generar recomendaciones específicas usando la función central
         const recomendacionesHTML = generarRecomendaciones(imcVal);
+
+        // Llamar a la función de impresión central
         imprimirReporte(nombre, imcRedondeado, clasificacionTexto, recomendacionesHTML, fecha);
     }
 });
